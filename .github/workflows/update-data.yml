@@ -13,21 +13,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Install requests
-      run: pip install requests
-
     - name: Fetch Dashboard CSV
-      run: |
-        python -c "import requests; headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}; r = requests.get('https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786', headers=headers); open('dashboard.csv', 'wb').write(r.content)"
+      run: curl -o dashboard.csv --retry 5 --retry-delay 5 --user-agent "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786"
 
     - name: Fetch Tips Log CSV
-      run: |
-        python -c "import requests; headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}; r = requests.get('https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089', headers=headers); open('tips.csv', 'wb').write(r.content)"
+      run: curl -o tips.csv --retry 5 --retry-delay 5 --user-agent "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
 
     - name: Commit and push if changed
       run: |
