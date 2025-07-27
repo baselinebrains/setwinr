@@ -1,7 +1,7 @@
-// app.js - Fetch data from Google Sheets and populate tables
+// app.js - Fetch data from GitHub-hosted CSV files and populate tables
 
-const dashboardUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR1SqB34ONUqDxXRd6w8vc2VqpaumUypOxIuK-4sTQ6zCr6MHFP-2VsICOr5ILqzg/pub?gid=1265439786&output=csv';
-const tipsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR1SqB34ONUqDxXRd6w8vc2VqpaumUypOxIuK-4sTQ6zCr6MHFP-2VsICOr5ILqzg/pub?gid=1251556089&output=csv';
+const dashboardUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/dashboard.csv';
+const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/tips.csv';
 
 let tipsDataGlobal = []; // To store tips data for export and charts
 
@@ -148,10 +148,10 @@ async function loadData() {
     // Initialize DataTables for Tips Log, preserving the pre-sorted order
     $('#tipsTable').DataTable({
       paging: true;
-      pageLength: 20;
+      pageLength: 20,
       searching: true;
-      ordering: true;
-      responsive: true;
+      ordering: true,
+      responsive: true,
       order: [] // No initial sort, to keep the pre-sorted order
     });
 
@@ -162,7 +162,7 @@ async function loadData() {
     document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure sheets are published as CSV.';
+    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure CSV files are uploaded.';
   } finally {
     loading.style.display = 'none';
   }
