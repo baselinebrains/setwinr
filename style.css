@@ -1,67 +1,230 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SETWINR Profit Tracker</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-  <script src="app.js"></script>
-</head>
-<body>
-  <div class="hero">
-    <img src="logo.png" alt="SETWINR Logo" class="logo">
-    <h1>SETWINR Profit Tracker</h1>
-    <div id="lastUpdated">Loading...</div>
-  </div>
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  padding: 1rem;
+  background: linear-gradient(to bottom, #0A2540, #020E1A);
+  color: #fff;
+  text-align: center;
+  line-height: 1.6;
+}
 
-  <nav>
-    <a href="#dashboard">Dashboard</a>
-    <a href="#tipsLog">Tips Log</a>
-  </nav>
+.hero {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Ensures logo, title, and last updated are centered */
+}
 
-  <div id="loading">Loading data...</div>
+.logo {
+  width: 100%;
+  max-width: 150px;
+  margin: 0 auto;
+  animation: fadeIn 1s ease-in;
+}
 
-  <section id="dashboard">
-    <h2>Dashboard</h2>
-    <div class="chart-container">
-      <canvas id="profitChart"></canvas>
-    </div>
-    <div id="dashboardContainer"></div>
-  </section>
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-  <section id="tipsLog">
-    <h2>Tips Log</h2>
-    <button id="exportCsv">Export to CSV</button>
-    <div class="table-container">
-      <table id="tipsTable" class="dataTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Tournament</th>
-            <th>Tip</th>
-            <th>Odds</th>
-            <th>Stake</th>
-            <th>Outcome</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+h1, h2 {
+  font-family: 'Fredoka', sans-serif;
+  margin: 0.5rem 0;
+  font-size: 2rem;
+  color: #FFD700;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
 
-  <footer>
-    SETWINR © 2025 — All Rights Reserved. | <a href="https://x.com/SETWINR"><i class="fab fa-x-twitter"></i> @SETWINR on X</a>
-    <p>Results shown are for transparency. Past performance is not a guarantee of future results. Gamble responsibly.</p>
-  </footer>
+#lastUpdated {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #ddd;
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+h2 {
+  margin: 0.5rem 0;
+  color: #FFD700;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table.dataTable {
+  border-collapse: collapse;
+  margin: 0 auto 1rem;
+  width: 95%;
+  max-width: 1000px;
+  background: #fff;
+  color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background: #FFD700;
+  color: #000;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border: 1px solid #FFD700;
+}
+
+tr:nth-child(even) {
+  background-color: #F0F4F8;
+}
+
+tr {
+  transition: background 0.3s;
+}
+
+tr:hover {
+  background-color: #DCEAF5;
+}
+
+td.win {
+  color: #fff;
+  font-weight: bold;
+  background: #0b883e !important;
+}
+
+td.loss {
+  color: #fff;
+  font-weight: bold;
+  background: #c0392b !important;
+}
+
+td.void {
+  color: #fff;
+  font-weight: bold;
+  background: #888 !important;
+}
+
+td.pending {
+  color: #000;
+  font-weight: bold;
+  background: #ddd !important;
+}
+
+.chart-container {
+  max-width: 1000px;
+  margin: 0 auto 1rem;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.5rem;
+  overflow-x: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.chart-container table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #000;
+  margin: 0 auto; /* Reinforce centering for metrics table */
+}
+
+.chart-container th, .chart-container td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.chart-container th {
+  background: #FFD700;
+}
+
+.chart-container tr:nth-child(even) {
+  background-color: #F0F4F8;
+}
+
+.chart-container tr:hover {
+  background-color: #DCEAF5;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+footer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  background: #020E1A;
+  padding: 1rem;
+  position: relative;
+  width: 100%;
+}
+
+a {
+  color: #FFD700;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+i.fab {
+  margin-right: 0.5rem;
+}
+
+nav {
+  margin: 1rem 0;
+}
+
+nav a {
+  margin: 0 1rem;
+  font-size: 1.1rem;
+}
+
+#loading {
+  font-size: 1.2rem;
+  color: #FFD700;
+  display: none;
+}
+
+#exportCsv {
+  background: #FFD700;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+#exportCsv:hover {
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  .logo {
+    max-width: 100px;
+  }
+  table.dataTable {
+    font-size: 0.8rem;
+    width: 100%;
+  }
+  .chart-container {
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+}
