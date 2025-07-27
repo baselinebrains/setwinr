@@ -2,8 +2,8 @@ name: Update Data from Google Sheets
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC (change as needed, e.g., '0 */1 * * *' for hourly)
-  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+    - cron: '0 0 * * *'  # Daily at midnight UTC; change to '0 */1 * * *' for hourly
+  workflow_dispatch:  # Manual trigger option
 
 jobs:
   update:
@@ -13,26 +13,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: pip install requests
-
     - name: Fetch Dashboard CSV
-      run: |
-        curl -o dashboard.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786"
+      run: curl -o dashboard.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786"
 
     - name: Fetch Tips Log CSV
-      run: |
-        curl -o tips.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
+      run: curl -o tips.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
 
     - name: Commit and push if changed
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add dashboard.csv tips.csv
-        git commit -m "Automatic data update from Google Sheets" || echo "No changes to commit"
+        git commit -m "Auto-update data from Google Sheets" || echo "No changes to commit"
         git push
