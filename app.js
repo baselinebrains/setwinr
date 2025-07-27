@@ -147,11 +147,11 @@ async function loadData() {
 
     // Initialize DataTables for Tips Log, preserving the pre-sorted order
     $('#tipsTable').DataTable({
-      paging: true,
-      pageLength: 20,
-      searching: true,
-      ordering: true,
-      responsive: true,
+      paging: true;
+      pageLength: 20;
+      searching: true;
+      ordering: true;
+      responsive: true;
       order: [] // No initial sort, to keep the pre-sorted order
     });
 
