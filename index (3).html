@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaselineBrains Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body>
+  <div class="hero">
+    <img src="logo.png" class="logo" alt="BaselineBrains Logo">
+    <h1>BaselineBrains Profit Tracker</h1>
+    <p id="lastUpdated">Loading...</p>
+  </div>
+
+  <nav>
+    <a href="#dashboard"><i class="fa fa-brain"></i> Dashboard</a>
+    <a href="#tips"><i class="fa fa-table-tennis-paddle-ball"></i> Tips Log</a>
+  </nav>
+
+  <div id="loading">Loading data...</div>
+
+  <section id="dashboard">
+    <h2><i class="fa fa-brain"></i> Dashboard</h2>
+    <div id="dashboardContainer" class="chart-container"></div>
+    <div class="chart-container">
+      <canvas id="profitChart" width="600" height="300"></canvas>
+    </div>
+  </section>
+
+  <section id="tips">
+    <h2><i class="fa fa-table-tennis-paddle-ball"></i> Tips Log</h2>
+    <button id="exportCsv">Export to CSV</button>
+    <div class="table-container">
+      <table id="tipsTable" class="dataTable">
+        <thead>
+          <tr>
+            <th aria-label="Date">Date</th>
+            <th aria-label="Tournament">Tournament</th>
+            <th aria-label="Tip">Tip</th>
+            <th aria-label="Odds">Odds</th>
+            <th aria-label="Stake">Stake</th>
+            <th aria-label="Outcome">Outcome</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>BaselineBrains © 2025 — All Rights Reserved. | <a href="https://x.com/BaselineBrains"><i class="fab fa-x-twitter"></i> @BaselineBrains on X</a></p>
+    <p>Results shown are for transparency. Past performance is not a guarantee of future results. Gamble responsibly.</p>
+  </footer>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
