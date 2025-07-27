@@ -162,7 +162,7 @@ async function loadData() {
     document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure CSV files are uploaded.';
+    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure sheets are published as CSV.';
   } finally {
     loading.style.display = 'none';
   }
