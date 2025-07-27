@@ -151,7 +151,7 @@ async function loadData() {
       pageLength: 20,
       searching: true;
       ordering: true;
-      responsive: true,
+      responsive: true;
       order: [] // No initial sort, to keep the pre-sorted order
     });
 
