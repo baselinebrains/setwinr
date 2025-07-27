@@ -14,10 +14,10 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Fetch Dashboard CSV
-      run: curl -o dashboard.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786"
+      run: curl -o dashboard.csv --user-agent "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1265439786"
 
     - name: Fetch Tips Log CSV
-      run: curl -o tips.csv "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
+      run: curl -o tips.csv --user-agent "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
 
     - name: Commit and push if changed
       run: |
