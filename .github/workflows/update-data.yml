@@ -20,6 +20,8 @@ jobs:
       run: curl -o tips.csv --retry 5 --retry-delay 5 --user-agent "Mozilla/5.0" "https://docs.google.com/spreadsheets/d/1Qvnbf4YhDpheyetWUjf0YcMoAbXTWqfX/export?format=csv&gid=1251556089"
 
     - name: Commit and push if changed
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
