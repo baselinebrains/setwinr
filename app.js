@@ -6,11 +6,19 @@ const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/t
 let tipsDataGlobal = []; // To store tips data for export and charts
 
 async function fetchCSV(url) {
+  console.log(`Attempting to fetch: ${url}`);
   const response = await fetch(url);
+  console.log(`Response status: ${response.status}`);
   if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
   const csvText = await response.text();
+  console.log(`Fetched text length: ${csvText.length}`);
+  if (csvText.length === 0) throw new Error('CSV file is empty');
   const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
-  if (parsed.errors.length > 0) throw new Error('CSV parsing error: ' + parsed.errors[0].message);
+  if (parsed.errors.length > 0) {
+    console.error('CSV parsing errors:', parsed.errors);
+    throw new Error('CSV parsing error: ' + parsed.errors[0].message);
+  }
+  console.log('Parsed data rows:', parsed.data.length);
   return parsed.data;
 }
 
@@ -67,7 +75,7 @@ function createProfitChart(tipsData) {
   tipsData.forEach(row => {
     const [date, , , odds, stake, outcome] = row;
     if (!outcome) return;
-    const lowerOutcome = outcome.toLowerCase();
+    const lowerOutcome = outcome ? outcome.toLowerCase() : '';
     let profit = 0;
     if (lowerOutcome === 'win') {
       profit = parseFloat(stake) * (parseFloat(odds) - 1);
@@ -107,13 +115,16 @@ async function loadData() {
   loading.style.display = 'block';
 
   try {
+    console.log('Starting data load process...');
     // Load Dashboard as table
     const dashboardData = await fetchCSV(dashboardUrl);
+    console.log('Dashboard data loaded, rows:', dashboardData.length);
     const dashboardTable = createTableFromCSV(dashboardData);
     document.getElementById('dashboardContainer').appendChild(dashboardTable);
 
     // Load Tips Log into existing table
     const tipsData = await fetchCSV(tipsUrl);
+    console.log('Tips data loaded, rows:', tipsData.length);
     tipsDataGlobal = tipsData; // Store for export and chart
 
     // Sort tips data by date descending (most recent first)
@@ -163,8 +174,8 @@ async function loadData() {
     // Update last updated
     document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })}`;
   } catch (error) {
-    console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Verify CSV files in repo.';
+    console.error('Data loading failed:', error);
+    document.getElementById('lastUpdated').textContent = 'Error: Data not loaded. Check CSV files or format.';
   } finally {
     loading.style.display = 'none';
   }
