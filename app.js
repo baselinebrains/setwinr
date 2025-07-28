@@ -1,7 +1,7 @@
-// app.js - Fetch data from GitHub-hosted CSV files with debugging and safeguards
+// app.js - Fetch data from Google Sheets CSV exports (cleaned links without single=true)
 
-const dashboardUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/dashboard.csv';
-const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/tips.csv';
+const dashboardUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1265439786&output=csv';
+const tipsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1251556089&output=csv';
 
 let tipsDataGlobal = []; // To store tips data for export and charts
 
@@ -12,7 +12,6 @@ async function fetchCSV(url) {
   if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
   const csvText = await response.text();
   console.log(`Fetched text length: ${csvText.length}`);
-  if (csvText.trim().length === 0) throw new Error('CSV file is empty');
   const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
   if (parsed.errors.length > 0) {
     console.error('CSV parsing errors:', parsed.errors);
@@ -27,6 +26,7 @@ function createTableFromCSV(data) {
   const thead = document.createElement('thead');
   const tbody = document.createElement('tbody');
 
+  // Header row
   const headerRow = document.createElement('tr');
   data[0].forEach(header => {
     const th = document.createElement('th');
@@ -36,17 +36,22 @@ function createTableFromCSV(data) {
   });
   thead.appendChild(headerRow);
 
+  // Data rows
   data.slice(1).forEach(rowData => {
-    if (rowData.every(cell => !cell)) return;
+    if (rowData.every(cell => !cell)) return; // Skip empty rows
     const tr = document.createElement('tr');
     rowData.forEach((cell, index) => {
       const td = document.createElement('td');
-      td.textContent = cell || ''; // Handle undefined cells
-      if (index === 0) {
-        const lowerCell = (cell || '').toLowerCase();
-        if (lowerCell === 'wins') td.className = 'win';
-        else if (lowerCell === 'losses') td.className = 'loss';
-        else if (lowerCell.includes('void')) td.className = 'void';
+      td.textContent = cell;
+      if (index === 0) { // Metric column
+        const lowerCell = cell.toLowerCase();
+        if (lowerCell === 'wins') {
+          td.className = 'win';
+        } else if (lowerCell === 'losses') {
+          td.className = 'loss';
+        } else if (lowerCell.includes('void')) {
+          td.className = 'void';
+        }
       }
       tr.appendChild(td);
     });
@@ -59,6 +64,7 @@ function createTableFromCSV(data) {
 }
 
 function createProfitChart(tipsData) {
+  // Sort by date ascending for cumulative profit
   tipsData.sort((a, b) => new Date(a[0]) - new Date(b[0]));
 
   let cumulativeProfit = 0;
@@ -70,113 +76,119 @@ function createProfitChart(tipsData) {
     if (!outcome) return;
     const lowerOutcome = outcome.toLowerCase();
     let profit = 0;
-    if (lowerOutcome === 'win') profit = parseFloat(stake) * (parseFloat(odds) - 1);
-    else if (lowerOutcome === 'loss') profit = -parseFloat(stake);
+    if (lowerOutcome === 'win') {
+      profit = parseFloat(stake) * (parseFloat(odds) - 1);
+    } else if (lowerOutcome === 'loss') {
+      profit = -parseFloat(stake);
+    } // void or pending = 0
     cumulativeProfit += profit;
     labels.push(date);
     profits.push(cumulativeProfit);
   });
 
-  const ctx = document.getElementById('profitChart');
-  if (ctx) {
-    new Chart(ctx.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Cumulative Profit',
-          data: profits,
-          borderColor: '#FFD700',
-          backgroundColor: 'rgba(255, 215, 0, 0.2)',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        scales: { y: { beginAtZero: true } }
+  const ctx = document.getElementById('profitChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Cumulative Profit',
+        data: profits,
+        borderColor: '#FFD700',
+        backgroundColor: 'rgba(255, 215, 0, 0.2)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
-    });
-  }
+    }
+  });
 }
 
 async function loadData() {
   const loading = document.getElementById('loading');
-  if (loading) loading.style.display = 'block';
+  loading.style.display = 'block';
 
   try {
-    console.log('Starting data load process...');
+    // Load Dashboard as table
     const dashboardData = await fetchCSV(dashboardUrl);
-    console.log('Dashboard data loaded, rows:', dashboardData.length);
     const dashboardTable = createTableFromCSV(dashboardData);
-    const dashboardContainer = document.getElementById('dashboardContainer');
-    if (dashboardContainer) dashboardContainer.appendChild(dashboardTable);
+    document.getElementById('dashboardContainer').appendChild(dashboardTable);
 
+    // Load Tips Log into existing table
     const tipsData = await fetchCSV(tipsUrl);
-    console.log('Tips data loaded, rows:', tipsData.length);
-    tipsDataGlobal = tipsData;
+    tipsDataGlobal = tipsData; // Store for export and chart
 
+    // Sort tips data by date descending (most recent first)
     const sortedTips = tipsData.slice(1).sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
     const tipsTbody = document.querySelector('.dataTable tbody');
-    if (tipsTbody) {
-      tipsTbody.innerHTML = '';
-      sortedTips.forEach(row => {
-        if (!row.join('').trim()) return;
-        const [date, tournament, tip, odds, stake, outcome] = row;
-        const lowerOutcome = outcome ? outcome.toLowerCase() : '';
-        let outcomeClass = '';
-        if (lowerOutcome === 'win') outcomeClass = 'win';
-        else if (lowerOutcome === 'loss') outcomeClass = 'loss';
-        else if (lowerOutcome.includes('void')) outcomeClass = 'void';
-        else if (lowerOutcome.includes('pending')) outcomeClass = 'pending';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${date || ''}</td>
-          <td>${tournament || ''}</td>
-          <td>${tip || ''}</td>
-          <td>${odds || ''}</td>
-          <td>${stake || ''}</td>
-          <td class="${outcomeClass}">${outcome || ''}</td>
-        `;
-        tipsTbody.appendChild(tr);
-      });
+    tipsTbody.innerHTML = '';
+    sortedTips.forEach(row => {
+      if (!row.join('').trim()) return;
+      const [date, tournament, tip, odds, stake, outcome] = row;
+      const lowerOutcome = outcome ? outcome.toLowerCase() : '';
+      let outcomeClass = '';
+      if (lowerOutcome === 'win') {
+        outcomeClass = 'win';
+      } else if (lowerOutcome === 'loss') {
+        outcomeClass = 'loss';
+      } else if (lowerOutcome.includes('void')) {
+        outcomeClass = 'void';
+      } else if (lowerOutcome.includes('pending')) {
+        outcomeClass = 'pending';
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${date}</td>
+        <td>${tournament}</td>
+        <td>${tip}</td>
+        <td>${odds}</td>
+        <td>${stake}</td>
+        <td class="${outcomeClass}">${outcome}</td>
+      `;
+      tipsTbody.appendChild(tr);
+    });
 
-      $('#tipsTable').DataTable({
-        paging: true,
-        pageLength: 20,
-        searching: true,
-        ordering: true,
-        responsive: true,
-        order: []
-      });
-    }
+    // Initialize DataTables for Tips Log, preserving the pre-sorted order
+    $('#tipsTable').DataTable({
+      paging: true,
+      pageLength: 20,
+      searching: true,
+      ordering: true,
+      responsive: true,
+      order: [] // No initial sort, to keep the pre-sorted order
+    });
 
+    // Create profit chart (uses ascending sort internally)
     createProfitChart(tipsData.slice(1));
-    const lastUpdated = document.getElementById('lastUpdated');
-    if (lastUpdated) lastUpdated.textContent = `Last Updated: ${new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })}`;
+
+    // Update last updated
+    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
   } catch (error) {
-    console.error('Data loading failed:', error);
-    const lastUpdated = document.getElementById('lastUpdated');
-    if (lastUpdated) lastUpdated.textContent = 'Error: Data not loaded. Check CSV files or format.';
+    console.error('Error loading data:', error);
+    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure sheets are published as CSV.';
   } finally {
-    const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'none';
+    loading.style.display = 'none';
   }
 }
 
 // Export functionality
-document.addEventListener('DOMContentLoaded', () => {
-  const exportCsv = document.getElementById('exportCsv');
-  if (exportCsv) {
-    exportCsv.addEventListener('click', function() {
-      const csv = Papa.unparse(tipsDataGlobal);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'tips_log.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-  }
+document.getElementById('exportCsv').addEventListener('click', function() {
+  const csv = Papa.unparse(tipsDataGlobal);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'tips_log.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
+
+document.addEventListener('DOMContentLoaded', loadData);
