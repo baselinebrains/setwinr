@@ -16,63 +16,23 @@
   <script src="app.js"></script>
 </head>
 <body>
-  <div class="hero">
+  <header class="hero">
     <img src="logo.png" alt="SETWINR Logo" class="logo">
     <h1>SETWINR Profit Tracker</h1>
-    <div id="lastUpdated">Loading...</div>
-  </div>
+    <div id="lastUpdated" class="last-updated">Loading...</div>
+  </header>
 
-  <section id="intro" class="intro">
-    <h2>SETWINR: Where Smart Tennis Betting Starts</h2>
-    <p>At SETWINR, betting is our business, built on strategy, edge, and discipline.</p>
-    <h3>Our focus</h3>
-    <p>Tennis only. ATP and WTA. We break down form, matchups, court surfaces, travel schedules, and the kind of stats most people ignore. If a player’s carrying a niggle, if someone’s due for a letdown after a marathon match, we spot it.</p>
-    <h3>How often are the tips?</h3>
-    <p>You’ll get quality tips during active tournament weeks, not volume for the sake of it. Match winners, totals, set betting, value dogs. Only where there’s a real edge. We’re not here to impress you with 15 picks a day. We’re here to win long term.</p>
-    <h3>Credentials</h3>
-    <p>We’ve been in the game for years - betting smart, tracking results, and staying ahead of lazy lines. If you’re looking for flashy parlays and “lock of the day” nonsense, look elsewhere. But if you want sharp, consistent plays from people who live tennis year round? SETWINR delivers.</p>
-  </section>
-
-  <nav>
+  <nav class="main-nav">
+    <a href="#intro">About</a>
     <a href="#dashboard">Dashboard</a>
     <a href="#tipsLog">Tips Log</a>
   </nav>
 
-  <div id="loading">Loading data...</div>
-
-  <section id="dashboard">
-    <h2>Dashboard</h2>
-    <div class="chart-container">
-      <canvas id="profitChart"></canvas>
-    </div>
-    <div id="dashboardContainer"></div>
-  </section>
-
-  <section id="tipsLog">
-    <h2>Tips Log</h2>
-    <button id="exportCsv">Export to CSV</button>
-    <div class="table-container">
-      <table id="tipsTable" class="dataTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Tournament</th>
-            <th>Tip</th>
-            <th>Odds</th>
-            <th>Stake</th>
-            <th>Outcome</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <footer>
-    SETWINR © 2025 — All Rights Reserved. | <a href="https://x.com/SETWINR"><i class="fab fa-x-twitter"></i> @SETWINR on X</a>
-    <p>Results shown are for transparency. Past performance is not a guarantee of future results. Gamble responsibly.</p>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
-</html>
+  <section id="intro" class="intro-section">
+    <h2>SETWINR: Where Smart Tennis Betting Starts</h2>
+    <p>At SETWINR, betting is our business, built on strategy, edge, and discipline.</p>
+    <div class="intro-content">
+      <div class="intro-column">
+        <h3>Our Focus</h3>
+        <p>Tennis only. ATP and WTA. We break down form, matchups, court surfaces, travel schedules, and the kind of stats most people ignore. If a player’s carrying a niggle, if someone’s due for a letdown after a marathon match, we spot it.</p>
+      </div>
