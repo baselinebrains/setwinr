@@ -1,20 +1,12 @@
-// app.js - Fetch data from Google Sheets CSV exports with CORS proxy
+// app.js - Fetch data from GitHub-hosted CSV files and populate tables
 
-const dashboardUrl = 'https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1265439786&output=csv';
-const tipsUrl = 'https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1251556089&output=csv';
+const dashboardUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/dashboard.csv';
+const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/tips.csv';
 
 let tipsDataGlobal = []; // To store tips data for export and charts
 
 async function fetchCSV(url) {
-  const response = await fetch(url, {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      'Accept': 'text/csv',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
-  });
-  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const response = await fetch(url);
   const csvText = await response.text();
   const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
   return parsed.data;
@@ -167,10 +159,10 @@ async function loadData() {
     createProfitChart(tipsData.slice(1));
 
     // Update last updated
-    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })}`;
+    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Check CSV links or proxy status.';
+    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure CSV files are uploaded.';
   } finally {
     loading.style.display = 'none';
   }
