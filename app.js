@@ -1,12 +1,20 @@
-// app.js - Fetch data from GitHub-hosted CSV files and populate tables
+// app.js - Fetch data directly from Google Sheets CSV exports
 
-const dashboardUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/dashboard.csv';
-const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/tips.csv';
+const dashboardUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1265439786&single=true&output=csv';
+const tipsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1251556089&single=true&output=csv';
 
 let tipsDataGlobal = []; // To store tips data for export and charts
 
 async function fetchCSV(url) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      'Accept': 'text/csv',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+  });
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   const csvText = await response.text();
   const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
   return parsed.data;
@@ -147,11 +155,11 @@ async function loadData() {
 
     // Initialize DataTables for Tips Log, preserving the pre-sorted order
     $('#tipsTable').DataTable({
-      paging: true;
+      paging: true,
       pageLength: 20,
-      searching: true;
-      ordering: true;
-      responsive: true;
+      searching: true,
+      ordering: true,
+      responsive: true,
       order: [] // No initial sort, to keep the pre-sorted order
     });
 
@@ -159,10 +167,10 @@ async function loadData() {
     createProfitChart(tipsData.slice(1));
 
     // Update last updated
-    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
+    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })}`;
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure sheets are published as CSV.';
+    document.getElementById('lastUpdated').textContent = 'Error loading data - Check CSV links or enable CORS proxy.';
   } finally {
     loading.style.display = 'none';
   }
