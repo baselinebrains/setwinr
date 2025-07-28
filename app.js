@@ -1,15 +1,29 @@
-// app.js - Fetch data from GitHub-hosted CSV files and populate tables
+// app.js - Fetch data from Google Sheets CSV exports with enhanced handling
 
-const dashboardUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/dashboard.csv';
-const tipsUrl = 'https://raw.githubusercontent.com/baselinebrains/setwinr/main/tips.csv';
+const dashboardUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1265439786&output=csv';
+const tipsUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTz1sXFV7ITaWVqtVvVQTYCmPRtMiQo40Ca_0OISmTaQ0PRXzI3jFfdNmIeUbP_EQ/pub?gid=1251556089&output=csv';
 
 let tipsDataGlobal = []; // To store tips data for export and charts
 
 async function fetchCSV(url) {
-  const response = await fetch(url);
-  const csvText = await response.text();
-  const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
-  return parsed.data;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Accept': 'text/csv',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const csvText = await response.text();
+    const parsed = Papa.parse(csvText, {header: false, skipEmptyLines: true});
+    if (parsed.errors.length > 0) throw new Error('CSV parsing error: ' + parsed.errors[0].message);
+    return parsed.data;
+  } catch (error) {
+    console.error('Fetch error for URL:', url, error);
+    throw error; // Re-throw for loadData to handle
+  }
 }
 
 function createTableFromCSV(data) {
@@ -159,10 +173,12 @@ async function loadData() {
     createProfitChart(tipsData.slice(1));
 
     // Update last updated
-    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString()}`;
+    document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })}`;
   } catch (error) {
-    console.error('Error loading data:', error);
-    document.getElementById('lastUpdated').textContent = 'Error loading data - Ensure CSV files are uploaded.';
+    console.error('Data loading error:', error);
+    document.getElementById('lastUpdated').textContent = 'Error: Data not loaded. Upload CSVs to repo or check links.';
+    // Fallback: If fetch fails, inform user to upload CSVs manually
+    console.log('Consider uploading dashboard.csv and tips.csv to https://github.com/baselinebrains/setwinr and using raw URLs.');
   } finally {
     loading.style.display = 'none';
   }
